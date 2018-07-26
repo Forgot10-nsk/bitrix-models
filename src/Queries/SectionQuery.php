@@ -63,6 +63,12 @@ class SectionQuery extends OldCoreQuery
         'DETAIL_PICTURE',
     ];
 
+    protected $urlTemplates = [
+        'detail' => '',
+        'section' => '',
+        'list' => '',
+    ];
+
     /**
      * Constructor.
      *
@@ -94,6 +100,9 @@ class SectionQuery extends OldCoreQuery
         $callback = function() use ($sort, $filter, $countElements, $select, $navigation) {
             $sections = [];
             $rsSections = $this->bxObject->getList($sort, $filter, $countElements, $select, $navigation);
+            if ($this->hasUrlTemplates()) {
+                $rsSections->SetUrlTemplates($this->urlTemplates['detail'], $this->urlTemplates['section'], $this->urlTemplates['list']);
+            }
             while ($arSection = $this->performFetchUsingSelectedMethod($rsSections)) {
 
                 // Если передать nPageSize, то Битрикс почему-то перестает десериализовать множественные свойсвта...
@@ -215,5 +224,19 @@ class SectionQuery extends OldCoreQuery
         $this->select[] = 'ID';
 
         return $this->clearSelectArray();
+    }
+
+    protected function hasUrlTemplates()
+    {
+        return $this->urlTemplates['detail'] || $this->urlTemplates['section'] || $this->urlTemplates['list'];
+    }
+
+    public function setUrlTemplates($DetailUrl = "", $SectionUrl = "", $ListUrl = "")
+    {
+        $this->urlTemplates = [
+            'detail' => (string)$DetailUrl,
+            'section' => (string)$SectionUrl,
+            'list' => (string)$ListUrl,
+        ];
     }
 }

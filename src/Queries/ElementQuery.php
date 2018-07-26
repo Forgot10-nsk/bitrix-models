@@ -92,6 +92,12 @@ class ElementQuery extends OldCoreQuery
         'CREATED_DATE',
     ];
 
+    protected $urlTemplates = [
+        'detail' => '',
+        'section' => '',
+        'list' => '',
+    ];
+
     /**
      * Constructor.
      *
@@ -163,6 +169,10 @@ class ElementQuery extends OldCoreQuery
                 $itemsChunks = [];
                 foreach ($select as $chunkIndex => $selectForChunk) {
                     $rsItems = $this->bxObject->GetList($sort, $filter, $groupBy, $navigation, $selectForChunk);
+                    if ($this->hasUrlTemplates()) {
+                        $rsItems->SetUrlTemplates($this->urlTemplates['detail'], $this->urlTemplates['section'], $this->urlTemplates['list']);
+                    }
+
                     while ($arItem = $this->performFetchUsingSelectedMethod($rsItems)) {
                         $this->addItemToResultsUsingKeyBy($itemsChunks[$chunkIndex], new $this->modelName($arItem['ID'], $arItem));
                     }
@@ -343,5 +353,19 @@ class ElementQuery extends OldCoreQuery
         }
 
         return $items;
+    }
+
+    protected function hasUrlTemplates()
+    {
+        return $this->urlTemplates['detail'] || $this->urlTemplates['section'] || $this->urlTemplates['list'];
+    }
+
+    public function setUrlTemplates($DetailUrl = "", $SectionUrl = "", $ListUrl = "")
+    {
+        $this->urlTemplates = [
+            'detail' => (string)$DetailUrl,
+            'section' => (string)$SectionUrl,
+            'list' => (string)$ListUrl,
+        ];
     }
 }
